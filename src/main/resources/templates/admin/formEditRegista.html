@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifica Regista - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">🎬 ADMIN</span>
+            <h2>Modifica Regista</h2>
+        </div>
+
+        <form th:action="@{'/admin/regista/edit/' + ${regista.id}}" th:object="${regista}" method="POST" class="form-auth">
+            <input type="hidden" th:field="*{id}" />
+
+            <!-- Errore globale duplicati -->
+            <div th:if="${#fields.hasGlobalErrors()}" style="color: #ef4444; margin-bottom: 1rem;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Nome:</label>
+                <input type="text" th:field="*{nome}"  />
+                <span class="errore-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" style="color: #ef4444;"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Cognome:</label>
+                <input type="text" th:field="*{cognome}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('cognome')}" th:errors="*{cognome}" style="color: #ef4444;"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Data di Nascita:</label>
+                <input type="date" th:field="*{dataNascita}"  />
+                <span class="errore-campo" th:if="${#fields.hasErrors('dataNascita')}" th:errors="*{dataNascita}" style="color: #ef4444;"></span>
+            </div>
+			
+            <div class="gruppo-input">
+                <label>Data di Morte (opzionale):</label>
+                <input type="date" th:field="*{dataMorte}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('dataMorte')}" th:errors="*{dataMorte}" style="color: #ef4444;"></span>
+            </div>
+			
+            <div class="gruppo-input">
+                <label>Nazionalità:</label>
+                <input type="text" th:field="*{nazionalita}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('nazionalita')}" th:errors="*{nazionalita}" style="color: #ef4444;"></span>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth" style="margin-top: 1.5rem;">Aggiorna Regista 💾</button>
+        </form>
+
+        <div class="auth-footer-links">
+            <a th:href="@{/registi}" class="link-ritorno-soft">Annulla</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuovo Festival - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">🎬 CINEFEST ADMIN</span>
+            <h2>Aggiungi Nuovo Festival</h2>
+        </div>
+		
+		
+					
+        <form th:action="@{/admin/festival}" th:object="${festival}" method="POST" class="form-auth">
+            <div th:if="${#fields.hasGlobalErrors()}" class="errore-globale">
+		                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore-campo" style="margin: 0;"></p>
+		    </div>
+			
+            <div class="gruppo-input">
+                <label>Nome Festival:</label>
+                <input type="text" th:field="*{nome}" placeholder="Es. Festival di Cannes" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+            </div>
+
+            
+            <div class="gruppo-input">
+                <label>Città:</label>
+                <input type="text" th:field="*{citta}" placeholder="Es. Venezia" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('citta')}" th:errors="*{citta}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Data di Inizio:</label>
+                <input type="date" th:field="*{dataInizio}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('dataInizio')}" th:errors="*{dataInizio}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Data di Fine:</label>
+                <input type="date" th:field="*{dataFine}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('dataFine')}" th:errors="*{dataFine}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Descrizione:</label>
+                <textarea th:field="*{descrizione}" rows="3" placeholder="Breve descrizione..."></textarea>
+                <span class="errore-campo" th:if="${#fields.hasErrors('descrizione')}" th:errors="*{descrizione}"></span>
+            </div>
+
+            <!-- Selezione Multipla Film da Associare -->
+            <div class="sezione-form-titolo" style="margin-top: 1.5rem; font-weight: bold;">
+                <span>🎞️ Associa Film al Festival:</span>
+            </div>
+
+            <div class="gruppo-input" style="max-height: 180px; overflow-y: auto; border: 1px solid #ccc; padding: 0.8rem; border-radius: 6px; margin-top: 0.5rem;">
+                <div th:if="${films == null or #lists.isEmpty(films)}">
+                    <p style="font-size: 0.9rem; color: #777;">Nessun film registrato a sistema.</p>
+                </div>
+
+                <div th:each="film : ${films}" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <input type="checkbox" 
+                           th:field="*{film}" 
+                           th:value="${film.id}" 
+                           th:id="${'film_' + film.id}" />
+                    <label th:for="${'film_' + film.id}" 
+                           th:text="${film.titolo + ' (' + film.anno + ')'}" 
+                           style="cursor: pointer; margin-bottom: 0; font-weight: normal;"></label>
+                </div>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth" style="margin-top: 1.5rem;">Salva Festival 💾</button>
+        </form>
+
+        <div class="auth-footer-links">
+            <a th:href="@{/}" class="link-ritorno-soft">🏠 Annulla e torna alla home</a>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineFest - Festival Cinematografico</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <a th:href="@{/}" class="logo">🎬 CineFest</a>
+        <nav class="nav-links">
+            <!-- Caso Anonimo -->
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline">Accedi</a>
+                <a th:href="@{/register}" class="btn btn-primary">Registrati</a>
+            </span>
+			<span sec:authorize="isAuthenticated()">
+			    <a th:href="@{/updateCredentials}" class="btn btn-primary">Impostazioni</a>
+			</span>
+
+            <!-- Caso Autenticato -->
+            <span sec:authorize="isAuthenticated()">
+                <!-- Utente Base -->
+                <span sec:authorize="!hasAuthority('ADMIN')" class="user-greeting">
+                    👤 Benvenuto, <strong sec:authentication="name">Utente</strong>!
+                </span>
+
+                <!-- Amministratore -->
+                <span sec:authorize="hasAuthority('ADMIN')" class="user-greeting" style="color: #ffc107;">
+                    <strong>Hai fatto l'accesso come admin 👑</strong>
+                </span>
+
+                <!-- Logout -->
+                <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 1rem;">
+                    <button type="submit" class="btn btn-outline">Logout</button>
+                </form>
+							
+            </span>
+        </nav>
+    </header>
+
+    <main class="main-content">
+		
+        <section class="hero">
+            <h1 class="hero-title">Benvenuti a CineFest</h1>
+            <p class="hero-subtitle">Esplora proiezioni, registi, recensioni e anteprime esclusive.</p>
+        </section>
+
+        <!-- Pannello Gestionale Riservato Esclusivamente all'Admin -->
+        <section sec:authorize="hasAuthority('ADMIN')" class="admin-panel" style="text-align: center; margin: 2rem 0; background: rgba(255, 193, 7, 0.08); padding: 1.5rem; border-radius: 8px; border: 1px dashed #ffc107;">
+            <h3 style="color: #ffc107; margin-bottom: 1rem;">⚙️ Pannello di Controllo Amministratore</h3>
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <a th:href="@{/admin/formNewFestival}" class="btn btn-primary">➕ Nuovo Festival</a>
+                <a th:href="@{/admin/formNewFilm}" class="btn btn-primary">🎬 Nuovo Film</a>
+                <a th:href="@{/admin/nuovoRegista}" class="btn btn-primary">🎥 Nuovo Regista</a>
+                <a th:href="@{/admin/formNewSala}" class="btn btn-primary">🏛️ Nuova Sala</a>
+                <a th:href="@{/admin/formNewProiezione}" class="btn btn-primary">🎟️ Programma Proiezione</a>
+            </div>
+        </section>
+
+        <!-- Griglia di Consultazione per tutti gli Utenti (Pubblica) -->
+        <section class="card-grid">
+            <!-- Card Festival & Edizioni -->
+            <div class="card">
+                <h3>🎪 Festival & Edizioni</h3>
+                <p>Scopri il programma completo, le città ospitanti e le date.</p>
+                <div style="margin-top: 1rem;">
+                    <a th:href="@{/festival}" class="btn btn-outline" style="display: inline-block;">Visualizza Festival ➔</a>
+                </div>
+            </div>
+
+            <!-- Card Catalogo Film -->
+            <div class="card">
+                <h3>🎞️ Catalogo Film</h3>
+                <p>Esplora tutte le pellicole in concorso, i generi e i registi.</p>
+                <div style="margin-top: 1rem;">
+                    <a th:href="@{/film}" class="btn btn-outline" style="display: inline-block;">Visualizza Film ➔</a>
+                </div>
+            </div>
+
+            <!-- Card Registi -->
+            <div class="card">
+                <h3>🎥 I Nostri Registi</h3>
+                <p>Scopri i maestri del cinema, le loro biografie e le pellicole dirette.</p>
+                <div style="margin-top: 1rem;">
+                    <a th:href="@{/registi}" class="btn btn-outline" style="display: inline-block;">Visualizza Registi ➔</a>
+                </div>
+            </div>
+
+            <!-- Card Sale Cinematografiche -->
+			
+            <section sec:authorize="hasAuthority('ADMIN')">
+			<div class="card">
+				<h3>🏛️ Sale Cinematografiche</h3>
+                <p>Verifica le sedi, gli indirizzi e la capienza delle sale dei festival.</p>
+                <div style="margin-top: 1rem;">
+                    <a th:href="@{/sale}" class="btn btn-outline" style="display: inline-block;">Visualizza Sale ➔</a>
+                </div>		
+			</div>
+            </section>     
+           
+
+            <!-- Card Programma Proiezioni -->
+            <div class="card">
+                <h3>🎟️ Programma Proiezioni</h3>
+                <p>Consulta il calendario completo delle proiezioni per orario e sala.</p>
+                <div style="margin-top: 1rem;">
+                    <a th:href="@{/proiezioni}" class="btn btn-outline" style="display: inline-block;">Visualizza Programma ➔</a>
+                </div>
+            </div>
+        </section>
+    </main>
+<p align="center">Roma Tre - SIW FESTIVAL</p>
+</body>
+</html>

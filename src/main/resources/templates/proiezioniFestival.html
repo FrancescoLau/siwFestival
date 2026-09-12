@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Proiezioni - ' + ${festival.nome}">Proiezioni Festival - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <a th:href="@{/}" class="logo">🎬 CineFest</a>
+        <nav class="nav-links">
+            <a th:href="@{/film}" class="nav-link">Film</a>
+            <a th:href="@{/festival}" class="nav-link active">Festival</a>
+            <a th:href="@{/registi}" class="nav-link">Registi</a>
+            <a th:href="@{/proiezioni}" class="nav-link">Proiezioni</a>
+
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline">Accedi</a>
+                <a th:href="@{/register}" class="btn btn-primary">Registrati</a>
+            </span>
+            <span sec:authorize="isAuthenticated()">
+                <span sec:authorize="!hasAuthority('ADMIN')" class="user-greeting">
+                    Benvenuto, <strong sec:authentication="name">Utente</strong>!
+                </span>
+                <span sec:authorize="hasAuthority('ADMIN')" class="user-greeting" style="color: #ffc107;">
+                    <strong>Admin</strong>
+                </span>
+                <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 1rem;">
+                    <button type="submit" class="btn btn-outline">Logout</button>
+                </form>
+            </span>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero" style="padding: 2rem 1rem;">
+            <h1 class="hero-title" th:text="${festival.nome}">Nome Festival</h1>
+            <p class="hero-subtitle">
+                Programma completo delle proiezioni • 
+                <span th:text="${festival.citta + ' (' + festival.anno + ')'}">Roma (2026)</span>
+            </p>
+
+            <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1rem;">
+                <a th:href="@{/admin/formNewProiezione}" class="btn btn-primary">➕ Programma Nuova Proiezione</a>
+            </div>
+        </section>
+
+        <section style="max-width: 950px; margin: 0 auto; padding: 1.5rem;">
+            
+            <!-- Nessuna proiezione presente -->
+            <div th:if="${proiezioni == null or #lists.isEmpty(proiezioni)}" class="card" style="text-align: center; padding: 2rem;">
+                <p style="color: #64748b;">Nessuna proiezione in programma per questo festival.</p>
+            </div>
+
+            <!-- Griglia Proiezioni -->
+            <div th:if="${proiezioni != null and not #lists.isEmpty(proiezioni)}" 
+                 style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                
+                <div th:each="proiezione : ${proiezioni}" class="card" 
+                     style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; text-align: left;">
+                    <div>
+                        <!-- Titolo del film -->
+                        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">
+                            <a th:if="${proiezione.film != null}" 
+                               th:href="@{'/film/' + ${proiezione.film.id}}" 
+                               th:text="${proiezione.film.titolo}" 
+                               style="color: #0f172a; text-decoration: none; font-weight: bold;">
+                                Titolo Film
+                            </a>
+                            <span th:if="${proiezione.film == null}" style="color: #64748b;">Film non disponibile</span>
+                        </h3>
+
+                        <!-- Info data e orario -->
+                        <p style="margin: 0.3rem 0; color: #475569; font-size: 0.9rem;">
+                            <strong>📅 Data:</strong> 
+                            <span th:text="${#temporals.format(proiezione.data, 'dd/MM/yyyy')}">01/09/2026</span>
+                        </p>
+                        <p style="margin: 0.3rem 0; color: #475569; font-size: 0.9rem;">
+                            <strong>⏰ Ora:</strong> 
+                            <span th:text="${#temporals.format(proiezione.ora, 'HH:mm')}">20:30</span>
+                        </p>
+
+                        <!-- Info Sala -->
+                        <p th:if="${proiezione.sala != null}" style="margin: 0.3rem 0; color: #475569; font-size: 0.9rem;">
+                            <strong>🏛️ Sala:</strong> 
+                            <span th:text="${proiezione.sala.nome + ' (' + proiezione.sala.indirizzo + ')'}">Sala Uno</span>
+                        </p>
+
+                        <!-- Stato Proiezione -->
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem;">
+                            <strong>Stato:</strong>
+                            <span th:text="${proiezione.stato}" 
+                                  th:style="${proiezione.stato.name() == 'SCHEDULED' ? 'color: #16a34a; font-weight: bold;' : (proiezione.stato.name() == 'CANCELLED' ? 'color: #dc2626; font-weight: bold;' : 'color: #64748b;')}">
+                                SCHEDULED
+                            </span>
+                        </p>
+                    </div>
+
+                    <!-- Azioni Admin (Modifica / Elimina) -->
+                    <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1.2rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a th:href="@{'/admin/proiezione/edit/' + ${proiezione.id}}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.3rem 0.6rem;">✏️ Modifica</a>
+                        <form th:action="@{'/admin/proiezione/delete/' + ${proiezione.id}}" method="post" style="display: inline;" 
+                              onsubmit="return confirm('Sei sicuro di voler eliminare questa proiezione?');">
+                            <button type="submit" class="btn btn-outline" style="color: #ef4444; border-color: #ef4444; font-size: 0.85rem; padding: 0.3rem 0.6rem;">🗑️ Elimina</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Link di ritorno -->
+            <div style="text-align: center; margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+                <a th:href="@{'/festival/' + ${festival.id}}" class="btn btn-outline">⬅ Torna al Festival</a>
+                <a th:href="@{/festival}" class="link-ritorno-soft" style="align-self: center;">🎪 Tutti i Festival</a>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

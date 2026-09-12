@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proiezioni - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <a th:href="@{/}" class="logo">🎬 CineFest</a>
+        <nav class="nav-links">
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline">Accedi</a>
+                <a th:href="@{/register}" class="btn btn-primary">Registrati</a>
+            </span>
+
+            <span sec:authorize="isAuthenticated()">
+                <span sec:authorize="!hasAuthority('ADMIN')" class="user-greeting">
+                    Benvenuto, <strong sec:authentication="name">Utente</strong>!
+                </span>
+                <span sec:authorize="hasAuthority('ADMIN')" class="user-greeting" style="color: #ffc107;">
+                    <strong>Admin</strong>
+                </span>
+                <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 1rem;">
+                    <button type="submit" class="btn btn-outline">Logout</button>
+                </form>
+            </span>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero" style="padding: 2rem 1rem;">
+            <h1 class="hero-title">🎟️ Programma Proiezioni</h1>
+            <p class="hero-subtitle">Tutti gli spettacoli e le proiezioni programmate nei festival.</p>
+            
+            <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1rem;">
+                <a th:href="@{/admin/formNewProiezione}" class="btn btn-primary">➕ Aggiungi Nuova Proiezione</a>
+            </div>
+        </section>
+
+        <section style="max-width: 1000px; margin: 0 auto; padding: 1rem;">
+            
+            <div th:if="${proiezioni == null or #lists.isEmpty(proiezioni)}" style="text-align: center; color: #888; margin-top: 2rem;">
+                <p>Nessuna proiezione programmata.</p>
+            </div>
+
+            <div th:if="${proiezioni != null and not #lists.isEmpty(proiezioni)}" class="card-grid">
+                <div th:each="proiezione : ${proiezioni}" class="card">
+                    <h3 th:if="${proiezione.film != null}">
+                        <a th:href="@{'/film/' + ${proiezione.film.id}}" th:text="${proiezione.film.titolo}" style="text-decoration: none; color: inherit;">Titolo Film</a>
+                    </h3>
+                    
+                    <p><strong>Data:</strong> <span th:text="${#temporals.format(proiezione.data, 'dd/MM/yyyy')}">01/09/2026</span></p>
+                    <p><strong>Ora:</strong> <span th:text="${proiezione.ora}">20:30</span></p>
+                    <p th:if="${proiezione.sala != null}"><strong>Sala:</strong> <span th:text="${proiezione.sala.nome}">Sala Grande</span></p>
+                    <p th:if="${proiezione.festival != null}"><strong>Festival:</strong> <span th:text="${proiezione.festival.nome}">Venezia 2026</span></p>
+                    <p th:if="${proiezione.stato != null}"><strong>Stato:</strong> <span th:text="${proiezione.stato}">SCHEDULED</span></p>
+					
+                    <!-- Azioni Admin: Modifica ed Elimina -->
+                    <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1.5rem; display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                        <a th:href="@{'/admin/proiezione/edit/' + ${proiezione.id}}" class="btn btn-outline btn-sm">✏️ Modifica</a>
+                        <form th:action="@{'/admin/proiezione/delete/' + ${proiezione.id}}" 
+                              method="POST" 
+                              style="display: inline; margin: 0;"
+                              onsubmit="return confirm('Sei sicuro di voler eliminare questa proiezione?');">
+                            <button type="submit" class="btn btn-danger btn-sm">🗑 Elimina</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2.5rem;">
+                <a th:href="@{/}" class="link-ritorno-soft">🏠 Torna alla Homepage</a>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

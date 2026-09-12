@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${film.titolo} + ' - CineFest'">Dettaglio Film - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <a th:href="@{/}" class="logo">🎬 CineFest</a>
+        <nav class="nav-links">
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline">Accedi</a>
+                <a th:href="@{/register}" class="btn btn-primary">Registrati</a>
+            </span>
+            <span sec:authorize="isAuthenticated()">
+                <span sec:authorize="!hasAuthority('ADMIN')" class="user-greeting">
+                    Benvenuto, <strong sec:authentication="name">Utente</strong>!
+                </span>
+                <span sec:authorize="hasAuthority('ADMIN')" class="user-greeting" style="color: #ffc107;">
+                    <strong>Admin</strong>
+                </span>
+                <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 1rem;">
+                    <button type="submit" class="btn btn-outline">Logout</button>
+                </form>
+            </span>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero" style="padding: 2rem 1rem;">
+            <h1 class="hero-title" th:text="${film.titolo}">Titolo Film</h1>
+            <p class="hero-subtitle">
+                <span th:text="${film.anno}">2026</span> • 
+                <span th:text="${film.genere}">Genere</span>
+            </p>
+        </section>
+
+        <section style="max-width: 800px; margin: 0 auto; padding: 1.5rem;">
+            
+            <!-- Card Dati Film -->
+            <div class="card" style="text-align: left; padding: 2rem; margin-bottom: 2rem;">
+                <p><strong>Anno di uscita:</strong> <span th:text="${film.anno}">2026</span></p>
+                <p><strong>Genere:</strong> <span th:text="${film.genere}">Drammatico</span></p>
+                <p th:if="${film.durata != null}"><strong>Durata:</strong> <span th:text="${film.durata} + ' minuti'">120 minuti</span></p>
+                <p><strong>Paese di produzione:</strong> <span th:text="${film.paeseProduzione}">Italia</span></p>
+                
+                <p th:if="${film.regista != null}">
+                    <strong>Regista:</strong> 
+                    <a th:href="@{'/regista/' + ${film.regista.id}}" 
+                       th:text="${film.regista.nome + ' ' + film.regista.cognome}" 
+                       style="color: #2563eb; text-decoration: none; font-weight: bold;">
+                    </a>
+                </p>
+
+                <!-- Azioni Admin -->
+                <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <a th:href="@{'/admin/film/edit/' + ${film.id}}" class="btn btn-outline" style="font-size: 0.85rem;">✏️ Modifica Film</a>
+                    <form th:action="@{'/admin/film/delete/' + ${film.id}}" method="post" style="display: inline;" 
+                          onsubmit="return confirm('Sei sicuro di voler eliminare questo film?');">
+                        <button type="submit" class="btn btn-outline" style="color: #ef4444; border-color: #ef4444; font-size: 0.85rem;">🗑️ Elimina Film</button>
+                    </form>
+                </div>
+
+                <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+
+                <!-- Festival a cui partecipa -->
+                <h3>🎪 Festival a cui partecipa</h3>
+                <div th:if="${film.festivals == null or #lists.isEmpty(film.festivals)}" style="color: #64748b; margin-top: 0.5rem;">
+                    <p>Questo film non è attualmente associato ad alcun festival.</p>
+                </div>
+
+                <ul th:if="${film.festivals != null and not #lists.isEmpty(film.festivals)}" style="padding-left: 1.2rem; margin-top: 0.5rem;">
+                    <li th:each="fest : ${film.festivals}" style="margin-bottom: 0.5rem;">
+                        <a th:href="@{'/festival/' + ${fest.id}}" 
+                           th:text="${fest.nome + ' (' + fest.citta + ', ' + fest.anno + ')'}" 
+                           style="color: #2563eb; text-decoration: none; font-weight: bold;">
+                        </a>
+                    </li>
+                </ul>
+
+                <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+
+                <!-- Proiezioni Programmate -->
+                <div class="film-proiezioni-box" style="border-top: none; margin-top: 0; padding-top: 0;">
+                    <h3 style="margin-bottom: 0.5rem;">🎟️ Proiezioni in Programma</h3>
+
+                    <p th:if="${film.proiezioni == null or #lists.isEmpty(film.proiezioni)}" class="film-proiezioni-empty">
+                        Nessuna proiezione programmata per questo film.
+                    </p>
+
+                    <ul th:if="${film.proiezioni != null and not #lists.isEmpty(film.proiezioni)}" class="film-proiezioni-list" style="padding: 0; margin-top: 0.5rem;">
+                        <li th:each="proiezione : ${film.proiezioni}" class="film-proiezioni-item">
+                            📅 Data: <span th:text="${#temporals.format(proiezione.data, 'dd/MM/yyyy')}">15/09/2026</span>
+                            — Ore: <span th:text="${#temporals.format(proiezione.ora, 'HH:mm')}">21:00</span>
+                            <span th:if="${proiezione.sala != null}" th:text="' — Sala: ' + ${proiezione.sala.nome}"> — Sala: Grande</span>
+                            <span th:if="${proiezione.festival != null}">
+                                — Festival: 
+                                <a th:href="@{'/festival/' + ${proiezione.festival.id}}" 
+                                   th:text="${proiezione.festival.nome}" 
+                                   style="color: #2563eb; text-decoration: none; font-weight: bold;">
+                                </a>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+				
+            </div>
+
+            <!-- Sezione Recensioni -->
+            <div class="card" style="text-align: left; padding: 2rem;">
+                <h3>Recensioni</h3>
+
+                <!-- Azioni riservate all'utente autenticato DEFAULT -->
+                <div sec:authorize="hasAuthority('DEFAULT')">
+                    <!-- Tasto scrivi recensione se non ne ha già fatta una -->
+                    <div th:if="${miaRecensione == null}" style="margin-bottom: 15px;">
+                        <a th:href="@{'/film/' + ${film.id} + '/nuovaRecensione'}" class="btn btn-primary">
+                            ✍️ Scrivi Recensione
+                        </a>
+                    </div>
+
+                    <!-- Box recensione personale -->
+                    <div th:if="${miaRecensione != null}" style="border: 1px solid #cbd5e1; border-radius: 8px; background-color: #f8fafc; padding: 15px; margin: 15px 0;">
+                        <h4 style="margin-top: 0;">La tua recensione</h4>
+                        <p style="margin: 5px 0;">
+                            <strong>Voto:</strong> <span th:text="${miaRecensione.voto}">5</span>/5 - 
+                            <strong>Data:</strong> <span th:text="${#temporals.format(miaRecensione.data, 'dd/MM/yyyy')}">06/09/2026</span>
+                        </p>
+                        <p style="color: #334155; margin: 10px 0;" th:text="${miaRecensione.testo}">Testo recensione</p>
+                        <div style="margin-top: 10px; display: flex; gap: 0.5rem;">
+                            <a th:href="@{'/recensione/edit/' + ${miaRecensione.id}}" class="btn btn-outline" style="font-size: 0.85rem;">✏️ Modifica</a>
+                            <form th:action="@{'/recensione/delete/' + ${miaRecensione.id}}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-outline" style="color: #ef4444; border-color: #ef4444; font-size: 0.85rem;" onclick="return confirm('Vuoi davvero eliminare la tua recensione?');">🗑️ Elimina</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nessuna recensione presente -->
+                <div th:if="${miaRecensione == null and (film.recensioni == null or #lists.isEmpty(film.recensioni))}" style="color: #64748b; margin-top: 0.5rem;">
+                    <p>Nessuna recensione disponibile per questo film.</p>
+                </div>
+
+                <!-- Pulsante per vedere tutte le recensioni -->
+                <div th:if="${film.recensioni != null and not #lists.isEmpty(film.recensioni)}" style="margin-top: 15px;">
+                    <a th:if="${(miaRecensione == null and #lists.size(film.recensioni) > 0) or (miaRecensione != null and #lists.size(film.recensioni) > 1)}"
+                       th:href="@{'/film/' + ${film.id} + '/recensioni'}" 
+                       class="btn btn-outline">
+                        Vedi tutte le recensioni (<span th:text="${#lists.size(film.recensioni)}">0</span>)
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer Navigation -->
+            <div style="text-align: center; margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+                <a th:href="@{/film}" class="btn btn-outline">⬅ Torna al catalogo Film</a>
+                <a th:href="@{/}" class="link-ritorno-soft" style="align-self: center;">🏠 Torna alla Home</a>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

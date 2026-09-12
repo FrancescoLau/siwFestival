@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registi - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <a th:href="@{/}" class="logo">🎬 CineFest</a>
+        <nav class="nav-links">
+            <a th:href="@{/film}" class="nav-link">Film</a>
+            <a th:href="@{/festival}" class="nav-link">Festival</a>
+            <a th:href="@{/registi}" class="nav-link active">Registi</a>
+
+            <!-- Utente Anonimo -->
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline">Accedi</a>
+                <a th:href="@{/register}" class="btn btn-primary">Registrati</a>
+            </span>
+
+            <!-- Utente Autenticato -->
+            <span sec:authorize="isAuthenticated()">
+                <span sec:authorize="!hasAuthority('ADMIN')" class="user-greeting">
+                    Benvenuto, <strong sec:authentication="name">Utente</strong>!
+                </span>
+                <span sec:authorize="hasAuthority('ADMIN')" class="user-greeting" style="color: #ffc107;">
+                    <strong>Admin</strong>
+                </span>
+                <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 1rem;">
+                    <button type="submit" class="btn btn-outline">Logout</button>
+                </form>
+            </span>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero" style="padding: 2rem 1rem;">
+            <h1 class="hero-title">I Registi</h1>
+            <p class="hero-subtitle">Scopri i grandi autori e le loro opere</p>
+            
+            <!-- Pulsante Nuovo Regista visibile solo all'Admin -->
+            <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1rem;">
+                <a th:href="@{/admin/nuovoRegista}" class="btn btn-primary">➕ Aggiungi Nuovo Regista</a>
+            </div>
+        </section>
+
+        <section style="max-width: 900px; margin: 0 auto; padding: 1.5rem;">
+            <!-- Messaggio se la lista è vuota -->
+            <div th:if="${registi == null or #lists.isEmpty(registi)}" class="card" style="text-align: center; padding: 2rem;">
+                <p style="color: #64748b;">Nessun regista presente nel catalogo.</p>
+            </div>
+
+            <!-- Griglia dei registi -->
+            <div th:if="${registi != null and not #lists.isEmpty(registi)}" 
+                 style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;">
+                <div th:each="regista : ${registi}" class="card" 
+                     style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; text-align: left;">
+                    <div>
+                        <h3 style="margin-top: 0; margin-bottom: 0.5rem;">
+                            <a th:href="@{'/regista/' + ${regista.id}}" 
+                               th:text="${regista.nome + ' ' + regista.cognome}" 
+                               style="color: #0f172a; text-decoration: none; font-weight: bold;">
+                                Nome Cognome
+                            </a>
+                        </h3>
+                        <p style="margin: 0.3rem 0; color: #475569; font-size: 0.9rem;">
+                            <strong>Data di nascita:</strong> 
+                            <span th:text="${#temporals.format(regista.dataNascita, 'dd/MM/yyyy')}">01/01/1980</span>
+                        </p>
+                        <!-- Data di morte visualizzata solo se presente -->
+                        <p th:if="${regista.dataMorte != null}" style="margin: 0.3rem 0; color: #475569; font-size: 0.9rem;">
+                            <strong>Data di morte:</strong> 
+                            <span th:text="${#temporals.format(regista.dataMorte, 'dd/MM/yyyy')}">01/01/2020</span>
+                        </p>
+                        <p th:if="${regista.nazionalita != null and !regista.nazionalita.isBlank()}" 
+                           style="margin: 0.3rem 0; color: #475569; font-size: 0.9rem;">
+                            <strong>Nazionalità:</strong> 
+                            <span th:text="${regista.nazionalita}">Italiana</span>
+                        </p>
+                    </div>
+
+                    <!-- Azioni -->
+                    <div style="margin-top: 1.2rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a th:href="@{'/regista/' + ${regista.id}}" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Dettagli</a>
+                        
+                        <!-- Pulsante Modifica visibile SOLO all'Admin -->
+                        <span sec:authorize="hasAuthority('ADMIN')">
+                            <a th:href="@{'/admin/regista/edit/' + ${regista.id}}" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">✏️ Modifica</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a th:href="@{/}" class="link-ritorno-soft">🏠 Torna alla Home</a>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

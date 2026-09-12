@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifica Festival - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">🎬 CINEFEST ADMIN</span>
+            <h2>Modifica Festival</h2>
+        </div>
+
+        <form th:action="@{'/admin/festival/edit/' + ${festival.id}}" th:object="${festival}" method="POST" class="form-auth">
+            
+            <input type="hidden" th:field="*{id}" />
+
+            <!-- Blocco errori globali (DuplicateFestivalException, DataFineBeforeDataInizioException) -->
+            <div th:if="${#fields.hasGlobalErrors()}" class="errore-globale" style="color: #ef4444; margin-bottom: 1rem;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore-campo" style="margin: 0;"></p>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Nome Festival:</label>
+                <input type="text" th:field="*{nome}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" style="color: #ef4444;"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Città:</label>
+                <input type="text" th:field="*{citta}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('citta')}" th:errors="*{citta}" style="color: #ef4444;"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Data di Inizio:</label>
+                <input type="date" th:field="*{dataInizio}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('dataInizio')}" th:errors="*{dataInizio}" style="color: #ef4444;"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Data di Fine:</label>
+                <input type="date" th:field="*{dataFine}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('dataFine')}" th:errors="*{dataFine}" style="color: #ef4444;"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Descrizione:</label>
+                <textarea th:field="*{descrizione}" rows="3"></textarea>
+                <span class="errore-campo" th:if="${#fields.hasErrors('descrizione')}" th:errors="*{descrizione}" style="color: #ef4444;"></span>
+            </div>
+
+            <!-- Selezione Film: i film già associati risulteranno spuntati grazie a th:field -->
+            <div class="sezione-form-titolo" style="margin-top: 1.5rem; font-weight: bold;">
+                <span>🎞️ Film in Programma:</span>
+            </div>
+
+            <div class="gruppo-input" style="max-height: 180px; overflow-y: auto; border: 1px solid #ccc; padding: 0.8rem; border-radius: 6px; margin-top: 0.5rem;">
+                <div th:if="${films == null or #lists.isEmpty(films)}">
+                    <p style="font-size: 0.9rem; color: #777;">Nessun film registrato a sistema.</p>
+                </div>
+
+                <div th:each="filmItem : ${films}" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <input type="checkbox" 
+                           th:field="*{film}" 
+                           th:value="${filmItem.id}" 
+                           th:id="${'film_' + filmItem.id}" />
+                    <label th:for="${'film_' + filmItem.id}" 
+                           th:text="${filmItem.titolo + ' (' + filmItem.anno + ')'}" 
+                           style="cursor: pointer; margin-bottom: 0; font-weight: normal;"></label>
+                </div>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth" style="margin-top: 1.5rem;">Aggiorna Festival 💾</button>
+        </form>
+
+        <div class="auth-footer-links">
+            <a th:href="@{'/festival/' + ${festival.id}}" class="link-ritorno-soft">Annulla e torna al dettaglio</a>
+        </div>
+    </div>
+
+</body>
+</html>

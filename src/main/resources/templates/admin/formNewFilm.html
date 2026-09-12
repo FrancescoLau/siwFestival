@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuovo Film - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">🎬 CINEFEST ADMIN</span>
+            <h2>Aggiungi Nuovo Film</h2>
+        </div>
+
+        <form th:action="@{/admin/film}" th:object="${film}" method="POST" class="form-auth">
+            
+            <!-- Messaggio Errore Globale (es. duplicato) -->
+            <div th:if="${#fields.hasGlobalErrors()}" class="errore-globale" style="color: #ff4d4d; margin-bottom: 1rem; text-align: center;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Titolo:</label>
+                <input type="text" th:field="*{titolo}" placeholder="Es. Oppenheimer" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('titolo')}" th:errors="*{titolo}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Anno di Uscita:</label>
+                <input type="number" th:field="*{anno}" placeholder="2024" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('anno')}" th:errors="*{anno}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Genere:</label>
+                <input type="text" th:field="*{genere}" placeholder="Es. Drammatico, Fantascienza" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('genere')}" th:errors="*{genere}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Durata (minuti):</label>
+                <input type="number" th:field="*{durata}" placeholder="Es. 180" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('durata')}" th:errors="*{durata}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Paese di Produzione:</label>
+                <input type="text" th:field="*{paeseProduzione}" placeholder="Es. USA, Italia" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('paeseProduzione')}" th:errors="*{paeseProduzione}"></span>
+            </div>
+			
+			<div class="gruppo-input">
+			                <label for="regista">Regista:</label>
+			                <select id="regista" th:field="*{regista}">
+			                    <option value="">-- Seleziona un Regista --</option>
+			                    <option th:each="registaItem : ${registi}" 
+			                            th:value="${registaItem.id}" 
+			                            th:text="${registaItem.nome + ' ' + registaItem.cognome}">Christopher Nolan</option>
+			                </select>
+			                <span class="errore-campo" th:if="${#fields.hasErrors('regista')}" th:errors="*{regista}"></span>
+			</div>
+            <!-- Selezione Multipla Festival -->
+            <div class="sezione-form-titolo" style="margin-top: 1.5rem; font-weight: bold;">
+                <span>🎪 Associa ai Festival in Programma:</span>
+            </div>
+
+            <div class="gruppo-input" style="max-height: 180px; overflow-y: auto; border: 1px solid #ccc; padding: 0.8rem; border-radius: 6px; margin-top: 0.5rem;">
+                <div th:if="${festivals == null or #lists.isEmpty(festivals)}">
+                    <p style="font-size: 0.9rem; color: #777;">Nessun festival registrato a sistema.</p>
+                </div>
+
+                <div th:each="festItem : ${festivals}" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <input type="checkbox" 
+                           th:field="*{festivals}" 
+                           th:value="${festItem.id}" 
+                           th:id="${'fest_' + festItem.id}" />
+                    <label th:for="${'fest_' + festItem.id}" 
+                           th:text="${festItem.nome + ' (' + festItem.citta + ', ' + festItem.anno + ')'}" 
+                           style="cursor: pointer; margin-bottom: 0; font-weight: normal;"></label>
+                </div>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth" style="margin-top: 1.5rem;">Salva Film 💾</button>
+        </form>
+
+        <div class="auth-footer-links">
+            <a th:href="@{/}" class="link-ritorno-soft">🏠 Annulla e torna alla home</a>
+        </div>
+    </div>
+
+</body>
+</html>

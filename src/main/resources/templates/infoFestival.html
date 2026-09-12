@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${festival.nome} + ' - CineFest'">Dettaglio Festival - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+</head>
+<body>
+
+	<header class="navbar">
+	        <a th:href="@{/}" class="logo">🎬 CineFest</a>
+	        <nav class="nav-links">
+	            <a th:href="@{/film}" class="btn btn-outline">Film</a>
+	            <a th:href="@{/festival}" class="btn btn-outline">Festival</a>
+	            <a th:href="@{/registi}" class="btn btn-outline">Registi</a>
+	            <a th:href="@{/proiezioni}" class="btn btn-outline">Proiezioni</a>
+
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline">Accedi</a>
+                <a th:href="@{/register}" class="btn btn-primary">Registrati</a>
+            </span>
+            <span sec:authorize="isAuthenticated()">
+                <span sec:authorize="!hasAuthority('ADMIN')" class="user-greeting">
+                    Benvenuto, <strong sec:authentication="name">Utente</strong>!
+                </span>
+                <span sec:authorize="hasAuthority('ADMIN')" class="user-greeting" style="color: #ffc107;">
+                    <strong>Admin</strong>
+                </span>
+                <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 1rem;">
+                    <button type="submit" class="btn btn-outline">Logout</button>
+                </form>
+            </span>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero" style="padding: 2rem 1rem;">
+            <h1 class="hero-title" th:text="${festival.nome}">Nome Festival</h1>
+            <p class="hero-subtitle">
+                <span th:text="${festival.citta}">Città</span> • 
+                Edizione <span th:text="${festival.anno}">2026</span>
+            </p>
+        </section>
+
+        <section style="max-width: 800px; margin: 0 auto; padding: 1.5rem;">
+            <div class="card" style="text-align: left; padding: 2rem;">
+                <p><strong>Città:</strong> <span th:text="${festival.citta}">Venezia</span></p>
+                <p><strong>Edizione (Anno):</strong> <span th:text="${festival.anno}">2026</span></p>
+                <p><strong>Date di svolgimento:</strong> 
+                    <span th:text="${#temporals.format(festival.dataInizio, 'dd/MM/yyyy')} + ' - ' + ${#temporals.format(festival.dataFine, 'dd/MM/yyyy')}">
+                        01/09/2026 - 10/09/2026
+                    </span>
+                </p>
+                <p th:if="${festival.descrizione != null and !#strings.isEmpty(festival.descrizione)}">
+                    <strong>Descrizione:</strong> <span th:text="${festival.descrizione}">Descrizione del festival</span>
+                </p>
+
+                <!-- Azioni Admin per il festival -->
+                <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <a th:href="@{'/admin/festival/edit/' + ${festival.id}}" class="btn btn-outline" style="font-size: 0.85rem;">✏️ Modifica Festival</a>
+                </div>
+
+                <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #ddd;">
+
+                <!-- Sezione Proiezioni del Festival -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h3 style="margin: 0;">🎟️ Proiezioni del Festival</h3>
+                    <a th:href="@{'/festival/' + ${festival.id} + '/proiezioni'}" 
+                       class="btn btn-primary" style="font-size: 0.85rem;">
+                        Visualizza Tutte le Proiezioni ➔
+                    </a>
+                </div>
+
+                <div th:if="${festival.proiezioni == null or #lists.isEmpty(festival.proiezioni)}" style="color: #777; margin-top: 0.5rem;">
+                    <p>Nessuna proiezione è stata ancora programmata per questo festival.</p>
+                </div>
+
+                <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #ddd;">
+
+                <!-- Sezione Film in Programma -->
+                <h3>🎞️ Film in Programma</h3>
+                <div th:if="${festival.film == null or #lists.isEmpty(festival.film)}" style="color: #777; margin-top: 0.5rem;">
+                    <p>Nessun film è stato ancora associato a questa edizione.</p>
+                </div>
+
+                <ul th:if="${festival.film != null and not #lists.isEmpty(festival.film)}" style="padding-left: 1.2rem; margin-top: 0.5rem;">
+                    <li th:each="f : ${festival.film}" style="margin-bottom: 0.5rem;">
+                        <a th:href="@{'/film/' + ${f.id}}" 
+                           th:text="${f.titolo + ' (' + f.anno + ') - ' + f.genere}" 
+                           style="color: #007bff; text-decoration: none; font-weight: bold;">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+                <a th:href="@{/festival}" class="btn btn-outline">⬅ Torna ai Festival</a>
+                <a th:href="@{/}" class="link-ritorno-soft" style="align-self: center;">🏠 Home</a>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
