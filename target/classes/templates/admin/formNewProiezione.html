@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuova Proiezione - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">🎬 CINEFEST ADMIN</span>
+            <h2>Programma Proiezione</h2>
+        </div>
+
+        <form th:action="@{/admin/proiezione}" th:object="${proiezione}" method="POST" class="form-auth">
+            <div th:if="${#fields.hasGlobalErrors()}" class="errore-globale" style="color: red; margin-bottom: 1rem;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+			
+			<div class="gruppo-input">
+			    <label>Festival:</label>
+			    <select th:field="*{festival}" onchange="if(this.value) window.location.href='/admin/formNewProiezione?festivalId=' + this.value;">
+			        <option value="">-- Seleziona un Festival --</option>
+			        <option th:each="f : ${festivals}" th:value="${f.id}" th:text="${f.nome + ' (' + f.anno + ')'}"></option>
+			    </select>
+			    <span class="errore-campo" th:if="${#fields.hasErrors('festival')}" th:errors="*{festival}"></span>
+			</div>
+			
+            <div class="gruppo-input">
+                <label>Data:</label>
+                <input type="date" th:field="*{data}"  />
+                <span class="errore-campo" th:if="${#fields.hasErrors('data')}" th:errors="*{data}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Ora (HH:mm):</label>
+                <input type="time" th:field="*{ora}"  />
+                <span class="errore-campo" th:if="${#fields.hasErrors('ora')}" th:errors="*{ora}"></span>
+            </div>         
+
+            <div class="gruppo-input">
+                <label>Film:</label>
+                <select th:field="*{film}" >
+                    <option value="">-- Seleziona un Film --</option>
+                    <option th:each="m : ${films}" th:value="${m.id}" th:text="${m.titolo}"></option>
+                </select>
+                <span class="errore-campo" th:if="${#fields.hasErrors('film')}" th:errors="*{film}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Sala:</label>
+                <select th:field="*{sala}" >
+                    <option value="">-- Seleziona una Sala --</option>
+                    <option th:each="s : ${sale}" th:value="${s.id}" th:text="${s.nome + ' - Capienza: ' + s.capienza}"></option>
+                </select>
+                <span class="errore-campo" th:if="${#fields.hasErrors('sala')}" th:errors="*{sala}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Stato:</label>
+                <select th:field="*{stato}">
+                    <option th:each="st : ${stati}" th:value="${st}" th:text="${st}"></option>
+                </select>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth" style="margin-top: 1.5rem;">Conferma Programmazione 🎟️</button>
+        </form>
+
+        <div class="auth-footer-links">
+            <a th:href="@{/proiezioni}" class="link-ritorno-soft">Torna alle proiezioni</a>
+        </div>
+    </div>
+</body>
+</html>

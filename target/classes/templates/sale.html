@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sale Cinematografiche - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <header class="navbar">
+        <a th:href="@{/}" class="logo">🎬 CineFest</a>
+        <nav class="nav-links">
+            <a th:href="@{/festival}">Festival</a>
+            <a th:href="@{/film}">Film</a>
+            <a th:href="@{/sale}" class="active">Sale</a>
+            <a th:href="@{/proiezioni}">Proiezioni</a>
+
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline">Accedi</a>
+            </span>
+            <span sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-outline">Logout</button>
+                </form>
+            </span>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>🏛️ Sale Cinematografiche</h2>
+            <a sec:authorize="hasAuthority('ADMIN')" th:href="@{/admin/formNewSala}" class="btn btn-primary">
+                ➕ Aggiungi Nuova Sala
+            </a>
+        </div>
+
+        <div th:if="${sale == null or #lists.isEmpty(sale)}" style="text-align: center; margin: 3rem 0;">
+            <p>Nessuna sala cinematografica registrata al momento.</p>
+        </div>
+
+        <div class="card-grid" th:if="${sale != null and !#lists.isEmpty(sale)}">
+            <div class="card" th:each="sala : ${sale}">
+                <h3 th:text="${sala.nome}">Nome Sala</h3>
+                <p><strong>📍 Indirizzo:</strong> <span th:text="${sala.indirizzo}">Via Roma, 1</span></p>
+                <p><strong>👥 Capienza:</strong> <span th:text="${sala.capienza} + ' posti'">150 posti</span></p>
+                
+                <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+                    <a th:href="@{'/admin/sala/edit/' + ${sala.id}}" class="btn btn-outline" style="font-size: 0.85rem;">
+                        Modifica ✏️
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineFest - Registrazione</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">🎬 CINEFEST</span>
+            <h2>Crea un account</h2>
+            <p style="color: #64748b; font-size: 0.95rem; margin-top: 0.3rem;">Unisciti al portale del festival cinematografico</p>
+        </div>
+
+        <form th:action="@{/register}" th:object="${credentials}" method="POST" class="form-auth">
+            
+            <div th:if="${#fields.hasGlobalErrors()}" class="errore-globale">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore-campo"></p>
+            </div>
+
+            <div class="sezione-form-titolo">
+                <span>📋 Dati Personali</span>
+            </div>
+            
+            <div class="gruppo-input">
+                <label>Nome:</label> 
+                <input type="text" th:field="*{user.nome}" placeholder="Inserisci il tuo nome" />
+                <span th:if="${#fields.hasErrors('user.nome')}" th:errors="*{user.nome}" class="errore-campo"></span>
+            </div>
+            
+            <div class="gruppo-input">
+                <label>Cognome:</label> 
+                <input type="text" th:field="*{user.cognome}" placeholder="Inserisci il tuo cognome" />
+                <span th:if="${#fields.hasErrors('user.cognome')}" th:errors="*{user.cognome}" class="errore-campo"></span>
+            </div>
+            
+            <div class="gruppo-input">
+                <label>Email:</label> 
+                <input type="text" th:field="*{user.email}" placeholder="esempio@email.com" />
+                <span th:if="${#fields.hasErrors('user.email')}" th:errors="*{user.email}" class="errore-campo"></span>
+            </div>
+
+            <div class="sezione-form-titolo">
+                <span>🔒 Credenziali d'Accesso</span>
+            </div>
+            
+            <div class="gruppo-input">
+                <label>Username:</label> 
+                <input type="text" th:field="*{username}" placeholder="Scegli un username" />
+                <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="errore-campo"></span>
+            </div>
+            
+            <div class="gruppo-input">
+                <label>Password:</label> 
+                <input type="password" th:field="*{password}" placeholder="Scegli una password sicura" />
+                <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="errore-campo"></span>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth">Registrati 🚀</button>
+        </form>
+        
+        <div class="auth-footer-links">
+            <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 0.5rem;">
+                Hai già un account? <a th:href="@{/login}" style="color: #2563eb; text-decoration: none; font-weight: 600;">Accedi qui</a>
+            </p>
+            <a th:href="@{/}" class="link-ritorno-soft">🏠 Torna alla home</a>
+        </div>
+    </div>
+
+</body>
+</html>

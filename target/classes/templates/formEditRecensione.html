@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifica Recensione - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">✏️ MODIFICA RECENSIONE</span>
+            <h2 th:text="'Modifica recensione per: ' + ${film.titolo}">Modifica Recensione</h2>
+        </div>
+
+        <form th:action="@{'/recensione/edit/' + ${recensione.id}}" th:object="${recensione}" method="POST" class="form-auth">
+            <div th:if="${#fields.hasGlobalErrors()}" class="errore-globale" style="color: red; margin-bottom: 1rem;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="gruppo-input">
+                <label>Voto:</label>
+                <select th:field="*{voto}">
+                    <option value="5">⭐⭐⭐⭐⭐ (5 - Eccellente)</option>
+                    <option value="4">⭐⭐⭐⭐ (4 - Molto buono)</option>
+                    <option value="3">⭐⭐⭐ (3 - Discreto)</option>
+                    <option value="2">⭐⭐ (2 - Insufficiente)</option>
+                    <option value="1">⭐ (1 - Pessimo)</option>
+                </select>
+                <span class="errore-campo" th:if="${#fields.hasErrors('voto')}" th:errors="*{voto}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Testo della Recensione:</label>
+                <textarea th:field="*{testo}" rows="5"></textarea>
+                <span class="errore-campo" th:if="${#fields.hasErrors('testo')}" th:errors="*{testo}"></span>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth" style="margin-top: 1.5rem;">Salva Modifiche 💾</button>
+        </form>
+
+        <div class="auth-footer-links">
+            <a th:href="@{'/film/' + ${film.id}}" class="link-ritorno-soft">Annulla e torna al film</a>
+        </div>
+    </div>
+</body>
+</html>

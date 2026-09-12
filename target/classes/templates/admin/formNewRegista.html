@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuovo Regista - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">🎬 ADMIN</span>
+            <h2>Aggiungi Nuovo Regista</h2>
+        </div>
+
+        <form th:action="@{/admin/nuovoRegista}" th:object="${regista}" method="POST" class="form-auth">
+            <div th:if="${#fields.hasGlobalErrors()}" class="errore-globale" style="color: red; margin-bottom: 1rem;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Nome:</label>
+                <input type="text" th:field="*{nome}" placeholder="es. Quentin" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Cognome:</label>
+                <input type="text" th:field="*{cognome}" placeholder="es. Tarantino" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('cognome')}" th:errors="*{cognome}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Data di Nascita:</label>
+                <input type="date" th:field="*{dataNascita}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('dataNascita')}" th:errors="*{dataNascita}"></span>
+            </div>
+			
+            <div class="gruppo-input">
+                <label>Data di Morte (opzionale):</label>
+                <input type="date" th:field="*{dataMorte}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('dataMorte')}" th:errors="*{dataMorte}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Nazionalità:</label>
+                <input type="text" th:field="*{nazionalita}" placeholder="es. Statunitense" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('nazionalita')}" th:errors="*{nazionalita}"></span>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth" style="margin-top: 1.5rem;">Salva Regista ➕</button>
+        </form>
+
+        <div class="auth-footer-links">
+            <a th:href="@{/registi}" class="link-ritorno-soft">Annulla e torna all'elenco</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuova Sala - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="body-autenticazione">
+    <div class="contenitore-auth">
+        <div class="auth-header">
+            <span class="auth-logo">🎬 CINEFEST ADMIN</span>
+            <h2>Nuova Sala</h2>
+        </div>
+
+        <form th:action="@{/admin/sala}" th:object="${sala}" method="POST" class="form-auth">
+            <div th:if="${#fields.hasGlobalErrors()}" class="errore-globale" style="color: red; margin-bottom: 1rem;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Nome Sala:</label>
+                <input type="text" th:field="*{nome}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Indirizzo:</label>
+                <input type="text" th:field="*{indirizzo}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('indirizzo')}" th:errors="*{indirizzo}"></span>
+            </div>
+
+            <div class="gruppo-input">
+                <label>Capienza:</label>
+                <input type="number" th:field="*{capienza}" />
+                <span class="errore-campo" th:if="${#fields.hasErrors('capienza')}" th:errors="*{capienza}"></span>
+            </div>
+
+            <button type="submit" class="bottone-verde-auth" style="margin-top: 1.5rem;">Crea Sala 🏛️</button>
+        </form>
+
+        <div class="auth-footer-links">
+            <a th:href="@{/sale}" class="link-ritorno-soft">Torna all'elenco sale</a>
+        </div>
+    </div>
+</body>
+</html>

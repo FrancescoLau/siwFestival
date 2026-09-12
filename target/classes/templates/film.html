@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogo Film - CineFest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <header class="navbar">
+        <a th:href="@{/}" class="logo">🎬 CineFest</a>
+        <nav class="nav-links">
+            <a th:href="@{/film}" class="btn btn-outline">Film</a>
+            <a th:href="@{/festival}" class="btn btn-outline">Festival</a>
+            <a th:href="@{/registi}" class="btn btn-outline">Registi</a>
+            <a th:href="@{/proiezioni}" class="btn btn-outline">Proiezioni</a>
+
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline">Accedi</a>
+                <a th:href="@{/register}" class="btn btn-primary">Registrati</a>
+            </span>
+
+            <span sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 0.8rem;">
+                <span sec:authorize="!hasAuthority('ADMIN')" class="user-greeting">
+                    Benvenuto, <strong sec:authentication="name">Utente</strong>!
+                </span>
+                <span sec:authorize="hasAuthority('ADMIN')" class="user-greeting" style="color: #facc15;">
+                    <strong>👑 Admin</strong>
+                </span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-outline">Logout</button>
+                </form>
+            </span>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero">
+            <h1 class="hero-title">🎞️ Catalogo Film</h1>
+            <p class="hero-subtitle">Tutti i titoli in concorso e le pellicole presentate ai festival.</p>
+
+            <div sec:authorize="hasAuthority('ADMIN')" style="margin-top: 1.25rem;">
+                <a th:href="@{/admin/formNewFilm}" class="btn btn-primary">🎬 Aggiungi Nuovo Film</a>
+            </div>
+        </section>
+
+        <section style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
+
+            <div th:if="${films == null or #lists.isEmpty(films)}" style="text-align: center; color: #64748b; margin-top: 2.5rem;">
+                <p>Nessun film presente nel catalogo.</p>
+            </div>
+
+            <div th:if="${films != null and not #lists.isEmpty(films)}" class="card-grid">
+                <div th:each="film : ${films}" class="card">
+                    <div>
+                        <h3>
+                            <a th:href="@{'/film/' + ${film.id}}" 
+                               th:text="${film.titolo}" 
+                               class="card-title-link">Titolo Film</a>
+                        </h3>
+
+                        <div class="card-info-list">
+                            <p class="card-info-item">
+                                <strong>Anno:</strong> <span th:text="${film.anno}">2026</span>
+                            </p>
+                            <p th:if="${film.genere != null and !#strings.isEmpty(film.genere)}" class="card-info-item">
+                                <strong>Genere:</strong> <span th:text="${film.genere}">Drammatico</span>
+                            </p>
+                            <p th:if="${film.durata != null}" class="card-info-item">
+                                <strong>Durata:</strong> <span th:text="${film.durata} + ' min'">120 min</span>
+                            </p>
+                            <p th:if="${film.paeseProduzione != null and !#strings.isEmpty(film.paeseProduzione)}" class="card-info-item">
+                                <strong>Origine:</strong> <span th:text="${film.paeseProduzione}">Italia</span>
+                            </p>
+                            <p th:if="${film.regista != null}" class="card-info-item">
+                                <strong>Regia:</strong> 
+                                <span th:text="${film.regista.nome + ' ' + film.regista.cognome}">Nome Regista</span>
+                            </p>
+                        </div>
+                    </div>
+					
+                    <div style="margin-top: 1.25rem; padding-top: 0.9rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                        <a th:href="@{'/film/' + ${film.id}}" class="btn btn-outline btn-sm">Scheda Film ➔</a>
+
+                        <div sec:authorize="hasAuthority('ADMIN')" style="display: flex; gap: 0.5rem;">
+                            <a th:href="@{'/admin/film/edit/' + ${film.id}}" class="btn btn-outline btn-sm">✏️ Modifica</a>
+                            <form th:action="@{'/admin/film/delete/' + ${film.id}}" 
+                                  method="POST" 
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Sei sicuro di voler eliminare questo film?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑 Elimina</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra di Navigazione Paginazione -->
+            <div th:if="${totalPages != null and totalPages > 1}" 
+                 style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2.5rem;">
+                
+                <a th:if="${hasPrev}" 
+                   th:href="@{/film(page=${currentPage - 1})}" 
+                   class="btn btn-outline btn-sm">⬅ Precedente</a>
+                <span th:unless="${hasPrev}" style="color: #94a3b8; font-size: 0.9rem;">⬅ Precedente</span>
+
+                <span style="font-size: 0.95rem; color: #475569;">
+                    Pagina <strong th:text="${currentPage + 1}" style="color: #0f172a;">1</strong> di <strong th:text="${totalPages}" style="color: #0f172a;">1</strong>
+                </span>
+
+                <a th:if="${hasNext}" 
+                   th:href="@{/film(page=${currentPage + 1})}" 
+                   class="btn btn-outline btn-sm">Successiva ➡</a>
+                <span th:unless="${hasNext}" style="color: #94a3b8; font-size: 0.9rem;">Successiva ➡</span>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <a th:href="@{/}" class="link-ritorno-soft">🏠 Torna alla Homepage</a>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
